@@ -1,0 +1,9 @@
+#ifndef BINARY_TREE_LEAF_H
+#define BINARY_TREE_LEAF_H
+
+typedef struct
+{
+	
+}
+
+#endif // BINARY_TREE_LEAF_H

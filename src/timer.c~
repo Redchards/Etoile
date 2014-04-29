@@ -1,0 +1,20 @@
+#include <timer.h>
+
+void start()
+{
+	clock_gettime(CLOCK_REALTIME, &startTime);
+	begin = start.tv_sec*NANOS + start.tv_nsec;
+}
+
+void stop()
+{
+	clock_gettime(CLOCK_REALTIME, &endTime);
+	elapsed = ((endTime.tv_sec*NANOS + endTime.tv_nsec) - begin)/NANOS;
+}
+
+double getElapsedTime()
+{
+	return elapsed;
+}
+
+

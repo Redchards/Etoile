@@ -1,0 +1,10 @@
+#ifndef HUFFMANSTRUCT_H
+#define HUFFMANSTRUCT_H
+
+typedef struct
+{
+	short codeLength;
+	short codeValue;
+} HuffmanCode;
+
+#endif // HUFFMANSTRUCT_H

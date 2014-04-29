@@ -1,0 +1,167 @@
+#ifndef LIST_FUNCTIONS_H
+#define LIST_FUNCTIONS_H
+
+//#define SAFE_REMOVAL
+#define SAFE_INSERTION
+#define SAFE_ACCESS
+
+#ifdef SAFE_REMOVAL
+#	define removeAssert(X) assert(X)
+#else
+#	define removeAssert(X)
+#endif // SAFE_REMOVAL
+
+#ifdef SAFE_INSERTION
+#	define insertAssert(X) assert(X)
+#else
+#	define insertAssert(X)
+#endif // SAGE_INSERTION
+
+#ifdef SAFE_ACCESS
+#	define accessAssert(X) assert(X)
+#else
+#	define accessAssert(X)
+#endif // SAFE_ACCESS
+
+#define CREATE_LIST_FUNCTIONS(type) \
+extern inline void next(type##_##list##_##iterator* it) \
+{ \
+    accessAssert(*it != NULL); \
+	*it = (*it)->next; \
+} \
+\
+extern inline void init(type##_##list* list) \
+{ \
+	list->begin = NULL; \
+	list->end = NULL; \
+	list->size = 0; \
+}\
+\
+extern inline void add(type##_##list* list, type toAdd) \
+{ \
+	type##_##list##_##iterator it = malloc(sizeof(type##_##node)); \
+    insertAssert(it != NULL); \
+	it->data = toAdd; \
+	if(list->begin == NULL) \
+	{ \
+		list->begin = it; \
+		list->begin->next = list->end; \
+		list->begin->prev = it; \
+	} \
+	else \
+	{ \
+	    it->next = list->end; \
+	    it->prev = list->begin->prev; \
+	    list->begin->prev->next = it; \
+	    list->begin->prev = it; \
+	} \
+    ++(list->size); \
+} \
+\
+extern inline void insert(type##_##list* list, type toAdd, int pos) \
+{ \
+    type##_##list##_##iterator it = malloc(sizeof(type##_##node)); \
+    it->data = toAdd; \
+    if((pos == list->size) || (list->size == 0) || (list->size == 1)) \
+    { \
+        add(list, toAdd); \
+    } \
+    else \
+    { \
+        type##_##list##_##iterator tmp = list->begin; \
+        for(int i = 1; i < pos; next(&tmp), i++ ) {} \
+\
+        tmp->next->prev = it; \
+        it->next = tmp->next; \
+        it->prev = tmp; \
+        tmp->next = it; \
+        ++(list->size); \
+    } \
+} \
+\
+extern inline int checkBelongTo(type##_##list* list, type##_##list##_##iterator toCheck) \
+{ \
+	for(type##_##list##_##iterator it = list->begin; it != list->end; next(&it) ) \
+	{ \
+		if(toCheck == it) \
+		{ \
+			return 1; \
+		} \
+	} \
+	return 0; \
+} \
+\
+extern inline void removeFirst(type##_##list* list) \
+{ \
+    type##_##list##_##iterator tmp = list->begin->next; \
+    tmp->prev = list->begin->prev; \
+    free(list->begin); \
+    list->begin = tmp; \
+    --(list->size); \
+} \
+\
+extern inline void removeLast(type##_##list* list) \
+{ \
+    type##_##list##_##iterator tmp = list->begin->prev->prev; \
+    tmp->next = list->end; \
+    free(list->begin->prev); \
+    list->begin->prev = tmp; \
+    --(list->size); \
+} \
+\
+extern inline void removeAt(type##_##list* list, type##_##list##_##iterator toRemove) \
+{ \
+	removeAssert(toRemove->next != NULL); \
+	removeAssert(toRemove->prev != NULL); \
+	removeAssert(checkBelongTo(list, toRemove)); \
+\
+	if(toRemove == list->begin) \
+	{ \
+	    removeFirst(list); \
+	} \
+	else if(toRemove == list->begin->prev) \
+	{ \
+	    removeLast(list); \
+	} \
+	else \
+	{ \
+		toRemove->prev->next = toRemove->next; \
+	    toRemove->next->prev = toRemove->prev; \
+	    free(toRemove); \
+	} \
+	--(list->size); \
+} \
+\
+extern inline void swapValue(type##_##list##_##iterator x, type##_##list##_##iterator y) \
+{ \
+	type tmp = x->data; \
+	x->data = y->data; \
+	y->data = tmp; \
+} \
+\
+extern inline type##_##list##_##iterator partition(type##_##list* list, type##_##list##_##iterator lo, type##_##list##_##iterator hi, int (*predicate)(type, type)) \
+{ \
+    type pivot = hi->data; \
+    type##_##list##_##iterator i = hi->prev; \
+    for(type##_##list##_##iterator it = lo; it != hi; next(&it)) \
+    { \
+    	if(predicate(it->data, pivot)) \
+    	{ \
+    		next(&i); \
+    		swapValue(i, it); \
+    } \
+    swapValue(i->next, hi); \
+    return i->next; \
+} \
+\
+extern inline void quickSort(type##_##list* list, type##_##list##_##iterator lo, type##_##list##_##iterator hi, int (*predicate)(type, type)) \
+{ \
+	if(lo != NULL && hi != NULL && lo != hi) \
+	{ \
+		type##_##list##_##iterator it = partition(list, lo, hi, predicate); \
+		quickSort(list, lo, it->prev, predicate); \
+		quickSort(list, it->next, hi, predicate); \
+ 	} \
+}
+
+#endif // LIST_FUNCTIONS_H
